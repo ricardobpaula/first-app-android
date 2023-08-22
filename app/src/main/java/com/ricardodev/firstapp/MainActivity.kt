@@ -1,9 +1,11 @@
 package com.ricardodev.firstapp
 
-import android.content.Intent
 import android.os.Bundle
-import android.os.PersistableBundle
+import android.view.View
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.widget.doOnTextChanged
+import androidx.lifecycle.Observer
 import com.ricardodev.firstapp.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
@@ -19,22 +21,22 @@ class MainActivity : AppCompatActivity() {
         val view = viewBinding.root
         setContentView(view)
 
-        val savedName = savedInstanceState?.getBundle(ResultActivity.ARG_NAME)
+        val viewModel: MainViewModel by viewModels()
 
-        viewBinding.submitButton.setOnClickListener{
-            startActivity(resultIntent())
+        viewModel.uiState.observe(this, handleState())
+
+        viewBinding.name.doOnTextChanged { _, _, _, _ ->
+            viewModel.onTextChanged()
+        }
+
+        viewBinding.submitButton.setOnClickListener {
+            viewModel.updateName(viewBinding.name.text.toString())
         }
 
     }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putString(ResultActivity.ARG_NAME, viewBinding.name.text.toString())
+    private fun handleState(): Observer<MainViewModel.UIState> = Observer<MainViewModel.UIState> { uiState ->
+        viewBinding.viewName.text = uiState.currentName
+        viewBinding.loading.visibility = if (uiState.isLoading) View.VISIBLE else View.GONE
     }
 
-    private fun resultIntent(): Intent {
-        var intent =  Intent(this, ResultActivity::class.java)
-        intent.putExtra(ResultActivity.ARG_NAME, viewBinding.name.text.toString())
-        return intent
-    }
 }
