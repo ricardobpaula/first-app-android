@@ -1,25 +1,32 @@
 package com.ricardodev.firstapp
 
-import androidx.appcompat.app.AppCompatActivity
+import android.content.Intent
 import android.os.Bundle
-import android.widget.Button
-import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+import com.ricardodev.firstapp.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
 
-    private var number = 0
+    private lateinit var viewBinding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val titleTextView = findViewById<TextView>(R.id.textView)
+        viewBinding = ActivityMainBinding.inflate(layoutInflater)
 
-        val textButton = findViewById<Button>(R.id.incrementButton)
-        textButton.setOnClickListener {
-            number ++
-            titleTextView.setText("Contagem: $number")
+        val view = viewBinding.root
+        setContentView(view)
+
+        viewBinding.submitButton.setOnClickListener{
+            startActivity(resultIntent())
         }
 
+    }
+
+    private fun resultIntent(): Intent {
+        var intent =  Intent(this, ResultActivity::class.java)
+        intent.putExtra(ResultActivity.ARG_NAME, viewBinding.name.text.toString())
+        return intent
     }
 }
